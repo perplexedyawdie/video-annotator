@@ -9,12 +9,23 @@ interface Props {
     editorId: string;
     timeStamp: number;
     timeDisplay: string;
+    noteData: string;
 }
 
-function NoteTaker({ editorId, timeStamp, timeDisplay }: Props) {
+function getInitialContent(noteData: string) {
+    try {
+        return JSON.parse(noteData)
+    } catch (error) {
+        console.error(error)
+        return undefined
+    }
+}
+
+function NoteTaker({ editorId, timeStamp, timeDisplay, noteData }: Props) {
     const { setNotes } = useContext(PlayerContext);
     const editor = useCreateBlockNote({
-        trailingBlock: false
+        trailingBlock: false,
+        initialContent: getInitialContent(noteData),
     });
 
     function handleContentChange(): void {

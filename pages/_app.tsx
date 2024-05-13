@@ -6,9 +6,22 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Video Annotator</title>
+        <title>VNote Pro</title>
+        <meta name="title" content="VNote Pro" />
         <meta name="description" content="Annotate, share, and learn from videos." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.vnote.pro/" />
+        <meta property="og:title" content="VNote Pro" />
+        <meta property="og:description" content="Annotate, share, and learn from videos." />
+        <meta property="og:image" content="https://objectstorage.ca-toronto-1.oraclecloud.com/p/XRwMBzmXfknfFlObnOaFiCIdJqeCpRMoFJix6H2UEOR-zJC-bSOXxnzxf4NWl-Yj/n/yzpjtx1indjl/b/vnote-pro/o/VNOTE.png" />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.vnote.pro/" />
+        <meta property="twitter:title" content="VNote Pro" />
+        <meta property="twitter:description" content="Annotate, share, and learn from videos." />
+        <meta property="twitter:image" content="https://objectstorage.ca-toronto-1.oraclecloud.com/p/XRwMBzmXfknfFlObnOaFiCIdJqeCpRMoFJix6H2UEOR-zJC-bSOXxnzxf4NWl-Yj/n/yzpjtx1indjl/b/vnote-pro/o/VNOTE.png" />
+
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Component {...pageProps} />
