@@ -12,6 +12,7 @@ const Player = dynamic(() => import("@/components/Player"), { ssr: false });
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 import { getAllBlobData, getNoteData, saveNote } from '@/utils/netlify-blobs';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 export interface NoteDetails {
     editorId: string;
@@ -54,13 +55,20 @@ function Annotator({ myNote }: InferGetServerSidePropsType<typeof getServerSideP
                 ...myNote,
                 noteDetails: notes
             }
-            axios.post("/api/save-notes", {
+            const saveResult = await axios.post("/api/save-notes", {
                 noteData: {
                     ...newNote
                 }
-            })
+            });
+            if (saveResult.data.result) {
+                toast.success('Notes saved successfuly! :)')
+            } else {
+                throw new Error("Note not saved :(");
+                
+            }
         } catch (error) {
             console.error(error)
+            toast.error("Notes not saved! Try again later. :(")
         } finally {
             setIsSaving(false)
         }
@@ -76,6 +84,7 @@ function Annotator({ myNote }: InferGetServerSidePropsType<typeof getServerSideP
             setVidDuration,
             setVidProgress
         }}>
+            <Toaster/>
             <NavBar />
             <div className="py-6 mx-auto max-w-screen-2xl px-4 space-y-24">
                 <div className="flex flex-col w-full space-y-4">
@@ -104,8 +113,7 @@ function Annotator({ myNote }: InferGetServerSidePropsType<typeof getServerSideP
 export const getServerSideProps = (async (context) => {
     try {
         //todo function to save/fetch from netlify blob
-        const allData = await getAllBlobData()
-        console.log(allData)
+        
         console.log("url:", context.resolvedUrl)
         console.log(uuidValidate(context.resolvedUrl.substring(1)))
 
