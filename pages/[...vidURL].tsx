@@ -5,63 +5,99 @@ import ReactPlayer from 'react-player'
 import dynamic from "next/dynamic";
 import { OnProgressProps } from 'react-player/base';
 import PlayerContext from '@/context/PlayerCtx';
- 
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 const Editor = dynamic(() => import("@/components/NoteTaker"), { ssr: false });
 const Scrubber = dynamic(() => import("@/components/VibScrubber"), { ssr: false });
+const Player = dynamic(() => import("@/components/Player"), { ssr: false });
+import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 
-function Annotator() {
+export interface NoteDetails {
+    editorId: string;
+    timeStamp: number;
+    timeDisplay: string;
+    noteData: string;
+}
+
+interface VNote {
+    id: string;
+    url: string;
+    noteDetails: NoteDetails;
+}
+
+function Annotator({}: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter();
-    const playerRef = useRef<ReactPlayer>(null)
-    const [vidDuration, setVidDuration] = useState<number>(0)
-    const [vidProgress, setVidProgress] = useState<number>(0)
-    console.log(router.asPath)
-    function handleVidProgress(state: OnProgressProps): void {
-        console.log(state.playedSeconds)
-        setVidProgress(state.playedSeconds)
-    }
+    const playerRef = useRef<ReactPlayer>(null);
+    const [vidDuration, setVidDuration] = useState<number>(0);
+    const [vidProgress, setVidProgress] = useState<number>(0);
+    const [notes, setNotes] = useState<NoteDetails[]>([]);
+    const [vnote, setVnote] = useState<VNote | null>(null);
 
-    function handleDuration(duration: number): void {
-        //todo use this to set max time
-        console.log("duration: ", duration)
-        setVidDuration(duration)
+
+    function handleAddNote(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+        const date = new Date(0);
+        date.setSeconds(vidProgress); // specify value for SECONDS here
+        const timeDisplay = date.toISOString().substring(11, 19);
+        setNotes(prev => [...prev, {
+            editorId: uuidv4(),
+            timeStamp: vidProgress,
+            timeDisplay,
+            noteData: ""
+        }])
     }
 
     return (
         <PlayerContext.Provider value={{
             vidDuration,
             vidProgress,
-            playerRef
+            playerRef,
+            setNotes,
+            setVidDuration,
+            setVidProgress
         }}>
             <NavBar />
             <div className="py-6 mx-auto max-w-screen-2xl px-4 space-y-24">
                 <div className="flex flex-col w-full space-y-4">
-                    {/* <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
-                        <input type="text" placeholder="Youtube URL here" className="input input-bordered w-full max-w-xs" />
-                        <button className="btn btn-primary">Load</button>
-                    </div> */}
-                    <p>Post: {router.asPath}</p>
                     {
                         ReactPlayer.canPlay(router.asPath) ? (
-                            <div className="relative pt-[56.25%]">
-                                <ReactPlayer
-                                    ref={playerRef}
-                                    className="absolute top-0 left-0"
-                                    url={router.asPath}
-                                    width='100%'
-                                    height='100%'
-                                    controls
-                                    onDuration={handleDuration}
-                                    onProgress={handleVidProgress} />
-                            </div>
+                            <Player playerRef={playerRef} url={router.asPath} />
                         ) : null
                     }
                     <Scrubber />
-                    <Editor />
+                    {/* <NoteBtns /> */}
+                    <div className="flex w-full justify-center items-center space-x-4">
+                        <button onClick={handleAddNote} className="btn btn-outline btn-primary">Add Note</button>
+                        <button onClick={handleAddNote} className="btn btn-outline btn-secondary">Save Notes</button>
+                    </div>
+                    <div className="w-full rounded-lg bg-gray-200 py-4 px-2 flex flex-col space-y-4">
+                    {
+                        notes.map((note) => <Editor key={note.editorId} editorId={note.editorId} timeStamp={note.timeStamp} timeDisplay={note.timeDisplay} />)
+                    }
+                    </div>
                 </div>
-                
+
             </div>
         </PlayerContext.Provider>
     )
 }
+export const getServerSideProps = (async (context) => {
+    try {
+      
+      console.log("url:", context.resolvedUrl)
+      console.log(uuidValidate(context.resolvedUrl))
+      return {
+        props: {}
+      }
+    } catch (error) {
+      console.error(error)
+      //todo redirect to homepage
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false
+        }
+      }
+    }
+  
+  }) satisfies GetServerSideProps
 
 export default Annotator

@@ -17,12 +17,14 @@
     "react": "^18",
     "react-dom": "^18",
     "react-player": "^2.16.0",
-    "react-scrubber": "^2.0.0"
+    "react-scrubber": "^2.0.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.8",
     "daisyui": "^4.11.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
